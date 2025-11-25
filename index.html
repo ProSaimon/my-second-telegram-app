@@ -3,86 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Змейка в Telegram</title>
+    <title>Го - Игра в Telegram</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
+        * {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #8B4513, #D2691E);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            color: white;
+            padding: 20px;
         }
 
         .container {
-            text-align: center;
-            max-width: 400px;
+            max-width: 600px;
             width: 100%;
-            padding: 20px;
+            text-align: center;
         }
 
         h1 {
-            font-size: 24px;
+            font-size: 28px;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
-        .game-container {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 20px;
-            margin: 20px 0;
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 255, 255, 0.2);
-        }
-
-        #gameCanvas {
-            background: #1a1a2e;
-            border-radius: 10px;
-            border: 3px solid #fff;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 10px;
-            margin-top: 20px;
-            max-width: 200px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .control-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 15px;
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .control-btn:active {
-            background: rgba(255, 255, 255, 0.4);
-            transform: scale(0.95);
-        }
-
-        .control-btn.up { grid-column: 2; grid-row: 1; }
-        .control-btn.left { grid-column: 1; grid-row: 2; }
-        .control-btn.right { grid-column: 3; grid-row: 2; }
-        .control-btn.down { grid-column: 2; grid-row: 3; }
-
-        .info {
+        .game-info {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 15px;
             padding: 15px;
@@ -91,28 +44,54 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
-        .instructions {
-            font-size: 14px;
-            opacity: 0.9;
-            margin-bottom: 15px;
+        .scores {
+            display: flex;
+            justify-content: space-around;
+            margin: 10px 0;
+            font-size: 18px;
+            font-weight: bold;
         }
 
-        .status {
-            font-size: 16px;
-            font-weight: bold;
+        .current-player {
+            font-size: 20px;
             margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .board-container {
+            background: #DEB887;
+            border: 3px solid #8B4513;
+            border-radius: 5px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        #gameBoard {
+            background: #DEB887;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
         }
 
         button {
-            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            background: linear-gradient(45deg, #8B4513, #A0522D);
             border: none;
             border-radius: 25px;
             color: white;
-            padding: 12px 30px;
+            padding: 12px 25px;
             font-size: 16px;
             font-weight: bold;
             cursor: pointer;
-            margin: 5px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
@@ -125,251 +104,463 @@
         button:active {
             transform: translateY(0);
         }
+
+        .message {
+            background: rgba(255, 255, 255, 0.9);
+            color: #8B4513;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-weight: bold;
+            min-height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .black { color: #000; }
+        .white { color: #fff; text-shadow: 1px 1px 2px #000; }
+
+        @media (max-width: 600px) {
+            #gameBoard {
+                width: 100%;
+                height: auto;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            button {
+                width: 200px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🐍 Телеграм Змейка</h1>
+        <h1>🎲 Игра Го</h1>
         
-        <div class="info">
-            <div class="instructions">
-                Управляй змейкой, чтобы она двигалась по квадрату!
+        <div class="game-info">
+            <div class="scores">
+                <div class="black">⚫ Черные: <span id="blackScore">0</span></div>
+                <div class="white">⚪ Белые: <span id="whiteScore">0</span></div>
             </div>
-            <div class="status" id="status">Готов к игре!</div>
+            
+            <div class="current-player" id="currentPlayer">
+                Сейчас ходят: ⚫ Черные
+            </div>
         </div>
 
-        <div class="game-container">
-            <canvas id="gameCanvas" width="300" height="300"></canvas>
+        <div class="message" id="gameMessage">
+            Кликните на доску, чтобы сделать ход
+        </div>
+
+        <div class="board-container">
+            <canvas id="gameBoard" width="570" height="570"></canvas>
         </div>
 
         <div class="controls">
-            <button class="control-btn up" onclick="changeDirection('up')">↑</button>
-            <button class="control-btn left" onclick="changeDirection('left')">←</button>
-            <button class="control-btn right" onclick="changeDirection('right')">→</button>
-            <button class="control-btn down" onclick="changeDirection('down')">↓</button>
-        </div>
-
-        <div>
-            <button onclick="startGame()">🎮 Начать игру</button>
-            <button onclick="resetGame()">🔄 Заново</button>
+            <button onclick="passTurn()">Пас</button>
+            <button onclick="resetGame()">Новая игра</button>
+            <button onclick="undoMove()">Отменить ход</button>
         </div>
     </div>
 
     <script>
+        // Константы игры
+        const BOARD_SIZE = 19;
+        const CELL_SIZE = 30;
+        const STONE_RADIUS = 13;
+
+        // Игровое состояние
+        let gameState = {
+            board: [],
+            currentPlayer: 'B', // B - черные, W - белые
+            blackScore: 0,
+            whiteScore: 0,
+            moveHistory: [],
+            koParam: { active: false, x: -1, y: -1 },
+            gameActive: true
+        };
+
+        // Элементы DOM
+        const canvas = document.getElementById('gameBoard');
+        const ctx = canvas.getContext('2d');
+        const blackScoreElement = document.getElementById('blackScore');
+        const whiteScoreElement = document.getElementById('whiteScore');
+        const currentPlayerElement = document.getElementById('currentPlayer');
+        const gameMessageElement = document.getElementById('gameMessage');
+
+        // Инициализация игры
+        function initGame() {
+            // Создаем пустую доску
+            gameState.board = [];
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                gameState.board[i] = [];
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    gameState.board[i][j] = '-';
+                }
+            }
+            
+            gameState.currentPlayer = 'B';
+            gameState.blackScore = 0;
+            gameState.whiteScore = 0;
+            gameState.moveHistory = [];
+            gameState.koParam = { active: false, x: -1, y: -1 };
+            gameState.gameActive = true;
+            
+            updateUI();
+            drawBoard();
+            showMessage('Игра началась! Ходят ⚫ Черные');
+        }
+
+        // Отрисовка доски
+        function drawBoard() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Рисуем фон
+            ctx.fillStyle = '#DEB887';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Рисуем сетку
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                // Горизонтальные линии
+                ctx.beginPath();
+                ctx.moveTo(CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
+                ctx.lineTo(canvas.width - CELL_SIZE / 2, i * CELL_SIZE + CELL_SIZE / 2);
+                ctx.stroke();
+                
+                // Вертикальные линии
+                ctx.beginPath();
+                ctx.moveTo(i * CELL_SIZE + CELL_SIZE / 2, CELL_SIZE / 2);
+                ctx.lineTo(i * CELL_SIZE + CELL_SIZE / 2, canvas.height - CELL_SIZE / 2);
+                ctx.stroke();
+            }
+            
+            // Рисуем точки (хоси)
+            const starPoints = [3, 9, 15];
+            ctx.fillStyle = '#000';
+            starPoints.forEach(i => {
+                starPoints.forEach(j => {
+                    ctx.beginPath();
+                    ctx.arc(
+                        i * CELL_SIZE + CELL_SIZE / 2,
+                        j * CELL_SIZE + CELL_SIZE / 2,
+                        3, 0, Math.PI * 2
+                    );
+                    ctx.fill();
+                });
+            });
+            
+            // Рисуем камни
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (gameState.board[i][j] !== '-') {
+                        drawStone(i, j, gameState.board[i][j]);
+                    }
+                }
+            }
+        }
+
+        // Рисуем камень
+        function drawStone(x, y, color) {
+            const centerX = y * CELL_SIZE + CELL_SIZE / 2;
+            const centerY = x * CELL_SIZE + CELL_SIZE / 2;
+            
+            if (color === 'B') {
+                // Черный камень с градиентом
+                const gradient = ctx.createRadialGradient(
+                    centerX - 3, centerY - 3, 1,
+                    centerX, centerY, STONE_RADIUS
+                );
+                gradient.addColorStop(0, '#666');
+                gradient.addColorStop(1, '#000');
+                ctx.fillStyle = gradient;
+            } else {
+                // Белый камень с градиентом
+                const gradient = ctx.createRadialGradient(
+                    centerX - 2, centerY - 2, 1,
+                    centerX, centerY, STONE_RADIUS
+                );
+                gradient.addColorStop(0, '#fff');
+                gradient.addColorStop(1, '#ddd');
+                ctx.fillStyle = gradient;
+            }
+            
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, STONE_RADIUS, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Обводка для белых камней
+            if (color === 'W') {
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+
+        // Обработчик клика по доске
+        canvas.addEventListener('click', (event) => {
+            if (!gameState.gameActive) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const y = event.clientY - rect.top;
+            
+            // Преобразуем координаты в индексы доски
+            const boardX = Math.floor(y / CELL_SIZE);
+            const boardY = Math.floor(x / CELL_SIZE);
+            
+            if (boardX >= 0 && boardX < BOARD_SIZE && boardY >= 0 && boardY < BOARD_SIZE) {
+                makeMove(boardX, boardY);
+            }
+        });
+
+        // Сделать ход
+        function makeMove(x, y) {
+            // Проверяем, что клетка свободна
+            if (gameState.board[x][y] !== '-') {
+                showMessage('Эта клетка уже занята!');
+                return;
+            }
+            
+            // Сохраняем состояние до хода для отмены
+            const boardBeforeMove = JSON.parse(JSON.stringify(gameState.board));
+            
+            // Ставим камень
+            gameState.board[x][y] = gameState.currentPlayer;
+            
+            // Логика захвата камней (упрощенная версия)
+            const capturedStones = checkCaptures(x, y);
+            
+            // Проверка на самоубийственный ход
+            if (capturedStones === 0 && isSuicideMove(x, y)) {
+                gameState.board[x][y] = '-';
+                showMessage('Самоубийственный ход!');
+                return;
+            }
+            
+            // Проверка на ко (упрощенно)
+            if (capturedStones === 1 && gameState.koParam.active) {
+                if (gameState.board[gameState.koParam.x][gameState.koParam.y] === '-') {
+                    // Восстанавливаем предыдущее состояние
+                    gameState.board = boardBeforeMove;
+                    showMessage('Ход нарушает правило ко!');
+                    return;
+                }
+            }
+            
+            // Обновляем счет
+            if (gameState.currentPlayer === 'B') {
+                gameState.blackScore += capturedStones;
+            } else {
+                gameState.whiteScore += capturedStones;
+            }
+            
+            // Обновляем параметр ко
+            if (capturedStones === 1) {
+                gameState.koParam = { active: true, x: x, y: y };
+            } else {
+                gameState.koParam = { active: false, x: -1, y: -1 };
+            }
+            
+            // Сохраняем ход в историю
+            gameState.moveHistory.push({
+                board: boardBeforeMove,
+                player: gameState.currentPlayer,
+                x: x,
+                y: y,
+                captures: capturedStones
+            });
+            
+            // Меняем игрока
+            gameState.currentPlayer = gameState.currentPlayer === 'B' ? 'W' : 'B';
+            
+            updateUI();
+            drawBoard();
+            showMessage(`Ход сделан! Сейчас ходят: ${gameState.currentPlayer === 'B' ? '⚫ Черные' : '⚪ Белые'}`);
+        }
+
+        // Проверка захватов (упрощенная версия)
+        function checkCaptures(x, y) {
+            let captures = 0;
+            const opponent = gameState.currentPlayer === 'B' ? 'W' : 'B';
+            
+            // Проверяем соседние камни противника
+            const directions = [[-1,0], [1,0], [0,-1], [0,1]];
+            
+            directions.forEach(([dx, dy]) => {
+                const nx = x + dx;
+                const ny = y + dy;
+                
+                if (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE) {
+                    if (gameState.board[nx][ny] === opponent) {
+                        if (isGroupCaptured(nx, ny)) {
+                            captures += removeGroup(nx, ny);
+                        }
+                    }
+                }
+            });
+            
+            return captures;
+        }
+
+        // Проверка, захвачена ли группа
+        function isGroupCaptured(startX, startY) {
+            const visited = new Set();
+            const stack = [[startX, startY]];
+            const color = gameState.board[startX][startY];
+            
+            while (stack.length > 0) {
+                const [x, y] = stack.pop();
+                const key = `${x},${y}`;
+                
+                if (visited.has(key)) continue;
+                visited.add(key);
+                
+                // Если у камня есть свобода, группа не захвачена
+                const neighbors = [[-1,0], [1,0], [0,-1], [0,1]];
+                for (const [dx, dy] of neighbors) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    
+                    if (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE) {
+                        if (gameState.board[nx][ny] === '-') {
+                            return false; // Есть свобода
+                        }
+                        if (gameState.board[nx][ny] === color) {
+                            stack.push([nx, ny]);
+                        }
+                    }
+                }
+            }
+            
+            return true; // Группа захвачена
+        }
+
+        // Удаление захваченной группы
+        function removeGroup(startX, startY) {
+            const color = gameState.board[startX][startY];
+            const stack = [[startX, startY]];
+            let count = 0;
+            
+            while (stack.length > 0) {
+                const [x, y] = stack.pop();
+                
+                if (gameState.board[x][y] !== color) continue;
+                
+                gameState.board[x][y] = '-';
+                count++;
+                
+                const neighbors = [[-1,0], [1,0], [0,-1], [0,1]];
+                for (const [dx, dy] of neighbors) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    
+                    if (nx >= 0 && nx < BOARD_SIZE && ny >= 0 && ny < BOARD_SIZE) {
+                        if (gameState.board[nx][ny] === color) {
+                            stack.push([nx, ny]);
+                        }
+                    }
+                }
+            }
+            
+            return count;
+        }
+
+        // Проверка на самоубийственный ход
+        function isSuicideMove(x, y) {
+            // Временно ставим камень
+            gameState.board[x][y] = gameState.currentPlayer;
+            
+            // Проверяем, имеет ли группа свободы
+            const hasLiberties = !isGroupCaptured(x, y);
+            
+            // Возвращаем как было
+            gameState.board[x][y] = '-';
+            
+            return !hasLiberties;
+        }
+
+        // Пас
+        function passTurn() {
+            if (!gameState.gameActive) return;
+            
+            gameState.moveHistory.push({
+                board: JSON.parse(JSON.stringify(gameState.board)),
+                player: gameState.currentPlayer,
+                x: -1,
+                y: -1,
+                captures: 0,
+                pass: true
+            });
+            
+            gameState.currentPlayer = gameState.currentPlayer === 'B' ? 'W' : 'B';
+            updateUI();
+            showMessage(`Игрок пропустил ход. Сейчас: ${gameState.currentPlayer === 'B' ? '⚫ Черные' : '⚪ Белые'}`);
+        }
+
+        // Отменить ход
+        function undoMove() {
+            if (gameState.moveHistory.length === 0) {
+                showMessage('Нечего отменять!');
+                return;
+            }
+            
+            const lastMove = gameState.moveHistory.pop();
+            gameState.board = lastMove.board;
+            gameState.currentPlayer = lastMove.player;
+            
+            // Возвращаем очки, если были захваты
+            if (lastMove.captures > 0) {
+                if (lastMove.player === 'B') {
+                    gameState.blackScore -= lastMove.captures;
+                } else {
+                    gameState.whiteScore -= lastMove.captures;
+                }
+            }
+            
+            updateUI();
+            drawBoard();
+            showMessage('Ход отменен');
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            blackScoreElement.textContent = gameState.blackScore;
+            whiteScoreElement.textContent = gameState.whiteScore;
+            
+            currentPlayerElement.textContent = `Сейчас ходят: ${
+                gameState.currentPlayer === 'B' ? '⚫ Черные' : '⚪ Белые'
+            }`;
+            
+            currentPlayerElement.className = `current-player ${
+                gameState.currentPlayer === 'B' ? 'black' : 'white'
+            }`;
+        }
+
+        // Показать сообщение
+        function showMessage(message) {
+            gameMessageElement.textContent = message;
+        }
+
         // Инициализация Telegram Web App
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.enableClosingConfirmation();
 
-        // Игровые переменные
-        const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d');
-        const statusElement = document.getElementById('status');
-
-        const gridSize = 20;
-        const gridWidth = canvas.width / gridSize;
-        const gridHeight = canvas.height / gridSize;
-
-        let snake = [];
-        let direction = 'right';
-        let gameInterval;
-        let isPlaying = false;
-
-        // Инициализация игры
-        function initGame() {
-            // Начальная позиция змейки
-            snake = [
-                {x: 3, y: 10},
-                {x: 2, y: 10},
-                {x: 1, y: 10}
-            ];
-            direction = 'right';
-            statusElement.textContent = 'Готов к игре!';
-        }
-
-        // Отрисовка игрового поля
-        function draw() {
-            // Очистка canvas
-            ctx.fillStyle = '#1a1a2e';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Отрисовка границ
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(1, 1, canvas.width - 2, canvas.height - 2);
-
-            // Отрисовка змейки
-            snake.forEach((segment, index) => {
-                if (index === 0) {
-                    // Голова змейки
-                    ctx.fillStyle = '#4ECDC4';
-                    ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-                    
-                    // Глаза
-                    ctx.fillStyle = '#000';
-                    if (direction === 'right') {
-                        ctx.fillRect((segment.x + 0.7) * gridSize, (segment.y + 0.2) * gridSize, 3, 3);
-                        ctx.fillRect((segment.x + 0.7) * gridSize, (segment.y + 0.7) * gridSize, 3, 3);
-                    } else if (direction === 'left') {
-                        ctx.fillRect((segment.x + 0.1) * gridSize, (segment.y + 0.2) * gridSize, 3, 3);
-                        ctx.fillRect((segment.x + 0.1) * gridSize, (segment.y + 0.7) * gridSize, 3, 3);
-                    } else if (direction === 'up') {
-                        ctx.fillRect((segment.x + 0.2) * gridSize, (segment.y + 0.1) * gridSize, 3, 3);
-                        ctx.fillRect((segment.x + 0.7) * gridSize, (segment.y + 0.1) * gridSize, 3, 3);
-                    } else if (direction === 'down') {
-                        ctx.fillRect((segment.x + 0.2) * gridSize, (segment.y + 0.7) * gridSize, 3, 3);
-                        ctx.fillRect((segment.x + 0.7) * gridSize, (segment.y + 0.7) * gridSize, 3, 3);
-                    }
-                } else {
-                    // Тело змейки
-                    ctx.fillStyle = '#45B7D1';
-                    ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-                    
-                    // Эффект чешуи
-                    ctx.strokeStyle = '#367588';
-                    ctx.lineWidth = 1;
-                    ctx.strokeRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-                }
-            });
-        }
-
-        // Движение змейки
-        function move() {
-            if (!isPlaying) return;
-
-            const head = {...snake[0]};
-
-            // Движение головы
-            switch(direction) {
-                case 'up':
-                    head.y -= 1;
-                    break;
-                case 'down':
-                    head.y += 1;
-                    break;
-                case 'left':
-                    head.x -= 1;
-                    break;
-                case 'right':
-                    head.x += 1;
-                    break;
-            }
-
-            // Проверка столкновения со стеной
-            if (head.x < 0 || head.x >= gridWidth || head.y < 0 || head.y >= gridHeight) {
-                gameOver();
-                return;
-            }
-
-            // Проверка столкновения с собой
-            for (let segment of snake) {
-                if (head.x === segment.x && head.y === segment.y) {
-                    gameOver();
-                    return;
-                }
-            }
-
-            // Добавление новой головы
-            snake.unshift(head);
-            
-            // Удаление хвоста (змея не растет)
-            snake.pop();
-
-            draw();
-        }
-
-        // Смена направления
-        function changeDirection(newDirection) {
-            if (!isPlaying) return;
-
-            // Запрет движения в противоположном направлении
-            const opposites = {
-                'up': 'down',
-                'down': 'up',
-                'left': 'right',
-                'right': 'left'
-            };
-
-            if (opposites[newDirection] !== direction) {
-                direction = newDirection;
-            }
-        }
-
-        // Начало игры
-        function startGame() {
-            if (isPlaying) return;
-            
-            isPlaying = true;
-            statusElement.textContent = 'Игра идет!';
-            
-            if (gameInterval) {
-                clearInterval(gameInterval);
-            }
-            
-            gameInterval = setInterval(move, 150);
-        }
-
-        // Конец игры
-        function gameOver() {
-            isPlaying = false;
-            clearInterval(gameInterval);
-            statusElement.textContent = 'Игра окончена!';
-            
-            // Мигание змейки при проигрыше
-            let blinkCount = 0;
-            const blinkInterval = setInterval(() => {
-                if (blinkCount < 6) {
-                    if (blinkCount % 2 === 0) {
-                        ctx.fillStyle = '#ff6b6b';
-                        snake.forEach(segment => {
-                            ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
-                        });
-                    } else {
-                        draw();
-                    }
-                    blinkCount++;
-                } else {
-                    clearInterval(blinkInterval);
-                    draw();
-                }
-            }, 200);
-        }
-
-        // Сброс игры
-        function resetGame() {
-            isPlaying = false;
-            clearInterval(gameInterval);
-            initGame();
-            draw();
-        }
-
-        // Управление с клавиатуры
-        document.addEventListener('keydown', (event) => {
-            switch(event.key) {
-                case 'ArrowUp':
-                    changeDirection('up');
-                    break;
-                case 'ArrowDown':
-                    changeDirection('down');
-                    break;
-                case 'ArrowLeft':
-                    changeDirection('left');
-                    break;
-                case 'ArrowRight':
-                    changeDirection('right');
-                    break;
-                case ' ':
-                    if (!isPlaying) {
-                        startGame();
-                    }
-                    break;
-            }
-        });
-
-        // Инициализация при загрузке
+        // Запуск игры при загрузке
         window.onload = function() {
             initGame();
-            draw();
         };
     </script>
 </body>
